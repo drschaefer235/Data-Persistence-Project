@@ -3,22 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+//using System.IO;
 
 public class MainManager : MonoBehaviour
 {
+    //public static MainManager Instance;
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text HighscoreText;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
 
-    
+    /*private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        //load Player name and highscore on start
+    } */
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +53,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        HighscoreText.text = "Highscore: " + DataManager.Instance.playerName + " " + DataManager.Instance.score;
     }
 
     private void Update()
@@ -65,12 +83,47 @@ public class MainManager : MonoBehaviour
     void AddPoint(int point)
     {
         m_Points += point;
+        //score im Datamanager speichern
+        DataManager.Instance.score = m_Points;
         ScoreText.text = $"Score : {m_Points}";
+        //ScoreText.text = "Score" + DataManager.Instance.playerName + m_Points;
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        //Namen und Score in json speichern
+        DataManager.Instance.SaveNameAndScore();
     }
+
+
+    /*//Code for persistence challenge
+    [System.Serializable]
+    class SaveData
+    {
+        //public Color TeamColor;
+    }
+
+    public void SaveColor()
+    {
+        SaveData data = new SaveData();
+        //data.TeamColor = TeamColor;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void LoadColor()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            //TeamColor = data.TeamColor;
+        }
+    } */
 }
